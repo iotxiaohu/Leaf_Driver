@@ -33,6 +33,7 @@ StRx StRx_t;		// 定义自己的结构体
 /* 
  * @name StRx_init
  * @Description 初始化结构体参数(此函数在main之前执行) 
+ * 如果不能调用这个函数,就必须在最开始初始化这个函数
  *
  */
 void __attribute__((constructor)) StRx_init(void)
@@ -42,7 +43,6 @@ void __attribute__((constructor)) StRx_init(void)
 	StRx_t.state = 0;
 	StRx_t.esc_flag = 0;
 	StRx_t.soh_flag = 0;
-	StRx_t.init_flag = 1;	
 	
 /*=========================User Code 2===========================*/
 	
@@ -58,16 +58,16 @@ void __attribute__((constructor)) StRx_init(void)
 #else
 
 /* 初始化单个设备 */
-static void StRx_init()
+void StRx_init(void)
 {
 
-/*=========================User Code 2===========================*/
 	StRx_t.head = 0;
 	StRx_t.tail = 0;
 	StRx_t.state = 0;
 	StRx_t.esc_flag = 0;
 	StRx_t.soh_flag = 0;
-	StRx_t.init_flag = 1;
+
+/*=========================User Code 2===========================*/
 	
 	/* 函数初始化 */
 	StRx_t.m_send = m_send_data;			//用户自己的 发送函数 
@@ -119,16 +119,14 @@ static int StRx_empty(StRx* Order)
  * @prame1 结构体索引
  * @prame2 源数据
  * @prame3 数量
- *
+ * @return (1 -- push success) (0 -- add_data_len为0, 或者队列满了)
  */
-void StRx_push(StRx* Order, unsigned char *add_data, int add_data_len)
+int StRx_push(StRx* Order, unsigned char *add_data, int add_data_len)
 {
 	int i = 0;
 	
-#ifndef USING_attribute
-	StRx_init(device_num);
-#endif	
-
+	if(add_data_len == 0) return 0;	// 为空
+	
 	for(i = 0; i< add_data_len; i++)
 	{
 		/* buf不满，就添加数据 */
@@ -137,8 +135,12 @@ void StRx_push(StRx* Order, unsigned char *add_data, int add_data_len)
 			Order->buf[Order->tail] = add_data[i];
 			Order->tail = (Order->tail + 1) % QUENUE_MAX;
 		}
+		else
+		{
+			return 0;		// 满了就添加不进去了
+		}
 	}
-	return;
+	return 1;				// 添加成功
 }
 
 
@@ -148,10 +150,10 @@ void StRx_push(StRx* Order, unsigned char *add_data, int add_data_len)
  * @Description 读取一个数据
  * @prame1 结构体索引
  * @prame2 目的数据
- * #return 0 is pop success 1 is not
+ * @return (0 is pop success)(1 is not)
  *
  */
-unsigned char StRx_pop(StRx* Order, unsigned char *des)
+static unsigned char StRx_pop(StRx* Order, unsigned char *des)
 {
 	if (StRx_empty(Order) == 1)
 	{
@@ -177,7 +179,7 @@ static int m_sum_check(unsigned char *tx_buf, int tx_buf_len)
 {
 	int i = 0;
 	unsigned char sum = 0;
-	
+		
 	for(i = 0; i<tx_buf_len-1;i++)
 	{
 		sum += tx_buf[i];
@@ -217,18 +219,14 @@ static int m_sum_check(unsigned char *tx_buf, int tx_buf_len)
 void m_deal_receive(StRx* Order)
 {
 	unsigned char head_data;
-	
-#ifndef USING_attribute	
-	StRx_init(device_num);
-#endif
-	
+		
 	while(StRx_pop(Order, &head_data))
 	{
 		if((Order->esc_flag != 1)&&(head_data == ASCII_SOH))		//【无ESC】+【SOH】
 		{
 				/* 头 */
 				Order->soh_flag = 1;
-				Order->cache_len = 0;
+				Order->cacheRx_len = 0;
 		}
 		else if((Order->esc_flag != 1)&&(head_data == ASCII_ESC))	//【无ESC】+【ESC】
 		{
@@ -245,22 +243,22 @@ void m_deal_receive(StRx* Order)
 #ifdef ADD_SUM_CHECK			//使用和校验
 				
 				/* 检查和校验 */
-				if(m_sum_check(Order->cacheRx, Order->cache_len) == 1)
+				if(m_sum_check(Order->cacheRx, Order->cacheRx_len) == 1)
 				{					
-					Order->m_deal_frame(Order->cacheRx, Order->cache_len -1);
+					Order->m_deal_frame(Order->cacheRx, Order->cacheRx_len -1);
 				}
 #else
 				Order->m_deal_frame(Order->cacheRx, Order->cache_len);
 #endif
 						
-				Order->cache_len = 0;
+				Order->cacheRx_len = 0;
 				Order->soh_flag = 0;
 			}
 		}
 		else
 		{
-			Order->cacheRx[Order->cache_len] = head_data;
-			Order->cache_len++;
+			Order->cacheRx[Order->cacheRx_len] = head_data;
+			Order->cacheRx_len++;
 			Order->esc_flag = 0;
 		}
 	}
@@ -279,9 +277,11 @@ void m_add_padding_send_data(StRx* Order, unsigned char *tx_buf, int tx_buf_len)
 {
 	int state = 0;
 	int i = 0;
-	int sum = 0;
-		
-#ifdef ADD_SUM_CHECK			//使用和校验
+	unsigned char sum = 0;
+
+	if(tx_buf_len > FRAME_MAX) return;	//长度太长,就发送失败
+	
+#ifdef ADD_SUM_CHECK					//使用和校验
 	
 	/* 进行和校验 */
 	sum = m_calculation_sum_check(tx_buf, tx_buf_len);			
@@ -314,6 +314,7 @@ void m_add_padding_send_data(StRx* Order, unsigned char *tx_buf, int tx_buf_len)
 	}
 	Order->cacheTx[state] = sum;
 	state++;
+	
 #endif
 	
 	/* 添加帧尾 */

@@ -14,7 +14,7 @@
 #define ADD_SUM_CHECK								//是否进行和校验
 
 #define FRAME_MAX				100					/* 帧最大长度				*/
-#define PADDING_FRAME_MAX		FRAME_MAX * 2 +2 	/* 字符填充之后帧最大长度	*/
+#define PADDING_FRAME_MAX		FRAME_MAX * 2 + 4 	/* 字符填充之后帧最大长度	*/
 #define QUENUE_MAX				256					/* 队列的深度				*/
 
 /*---------------------------------------------------------------*/
@@ -24,17 +24,14 @@
 /*|----|****|****|****|****|----|----| */
 /*|----|head|----|----|----|tail|----| */
 typedef struct
-{
-	int init_flag;									// 是否进行过初始化的标志位
-	
-	unsigned char head1;
-	unsigned char buf[QUENUE_MAX];
-	int state;
+{	
 	int head;
+	int state;
 	int tail;
+	unsigned char buf[QUENUE_MAX];
 	unsigned char cacheRx[FRAME_MAX];				//解析出来的帧
+	int cacheRx_len;
 	unsigned char cacheTx[PADDING_FRAME_MAX];		//发送的帧
-	int cache_len;
 		
 	int soh_flag;									//有帧头标志
 	int esc_flag;									//转义标志	
@@ -53,7 +50,9 @@ extern StRx StRx_t;
 
 /*---------------------------------------------------------------*/
 
-
+#ifndef USING_attribute
+void StRx_init(void);
+#endif
 
 /* 
  * @name m_add_padding_send_data
@@ -72,9 +71,9 @@ void m_add_padding_send_data(StRx* Order, unsigned char *tx_buf, int tx_buf_len)
  * @prame1 结构体索引
  * @prame2 源数据
  * @prame3 数量
- *
+ * @return (1 -- push success) (0 -- add_data_len为0, 或者队列满了)
  */
-void StRx_push(StRx* Order, unsigned char *add_data, int add_data_len);
+int  StRx_push(StRx* Order, unsigned char *add_data, int add_data_len);
 
 /* 
  * @name m_deal_receive
