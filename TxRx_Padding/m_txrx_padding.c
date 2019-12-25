@@ -248,7 +248,7 @@ void m_deal_receive(StRx* Order)
 					Order->m_deal_frame(Order->cacheRx, Order->cacheRx_len -1);
 				}
 #else
-				Order->m_deal_frame(Order->cacheRx, Order->cache_len);
+				Order->m_deal_frame(Order->cacheRx, Order->cacheRx_len);
 #endif
 						
 				Order->cacheRx_len = 0;
@@ -257,7 +257,7 @@ void m_deal_receive(StRx* Order)
 		}
 		else
 		{
-			Order->cacheRx[Order->cacheRx_len] = head_data;
+			Order->cacheRx[Order->cacheRx_len % FRAME_MAX] = head_data;
 			Order->cacheRx_len++;
 			Order->esc_flag = 0;
 		}
@@ -339,22 +339,4 @@ void text_example(void)
 	/* 适当的时侯调用这个函数, 建议 10ms 一次 */
 	m_deal_receive(&StRx_t);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -14,8 +14,8 @@
 #define ADD_SUM_CHECK								//是否进行和校验
 
 #define FRAME_MAX				100					/* 帧最大长度				*/
-#define PADDING_FRAME_MAX		FRAME_MAX * 2 + 4 	/* 字符填充之后帧最大长度	*/
-#define QUENUE_MAX				256					/* 队列的深度				*/
+#define PADDING_FRAME_MAX	FRAME_MAX * 2 + 4 /* 字符填充之后帧最大长度	*/
+#define QUENUE_MAX			256					/* 队列的深度				*/
 
 /*---------------------------------------------------------------*/
 
