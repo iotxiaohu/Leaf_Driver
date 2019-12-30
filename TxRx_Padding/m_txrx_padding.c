@@ -29,13 +29,14 @@ StRx StRx_t;		// 定义自己的结构体
 /*---------------------------------------------------------------*/
 
 #ifdef USING_attribute
-
-/* 
- * @name StRx_init
- * @Description 初始化结构体参数(此函数在main之前执行) 
- * 如果不能调用这个函数,就必须在最开始初始化这个函数
- *
- */
+ 
+ 
+ 
+ /**
+  * @bieaf 初始化结构体参数(此函数在main之前执行) 
+  * @detail 如果不能调用这个函数,就必须在最开始初始化这个函数
+  *
+  */
 void __attribute__((constructor)) StRx_init(void)
 {
 	StRx_t.head = 0;
@@ -78,12 +79,15 @@ void StRx_init(void)
 #endif
 
 
-
-/* 
- * @name StRx_full
- * @Description 初始化结构体参数(此函数在main之前执行) 
- * @return (1 is full),(0 is not full)
+ 
+ 
+/**
+ * @bieaf 初始化结构体参数(此函数在main之前执行) 
  *
+ * @param 结构体索引
+ * @return 返回是否为满
+ * 	@retval 0 非满
+ * 	@retval 1 满
  */
 static int StRx_full(StRx* Order)
 {
@@ -96,11 +100,14 @@ static int StRx_full(StRx* Order)
 
 
 
-/* 
- * @name StRx_empty
- * @Description 判断是否为空 空返回1，满返回0
- * @return (1 is empty),(0 is not empty)
+
+/**
+ * @bieaf 判断是否为空 空返回1，满返回0
  *
+ * @param 结构体索引
+ * @return 返回是否为空
+ * 	@retval 0 非空
+ * 	@retval 1 空
  */
 static int StRx_empty(StRx* Order)
 {
@@ -113,13 +120,15 @@ static int StRx_empty(StRx* Order)
 
 
 
-/* 
- * @name StRx_push
- * @Description 添加数据
- * @prame1 结构体索引
- * @prame2 源数据
- * @prame3 数量
- * @return (1 -- push success) (0 -- add_data_len为0, 或者队列满了)
+/**
+ * @bieaf 添加数据
+ *
+ * @param 结构体索引
+ * @param add_data		源数据
+ * @param add_data_len	源数据大小
+ * @return 返回本次操作的状态
+ * 	@retval 0 操作失败
+ * 	@retval 1 操作成功
  */
 int StRx_push(StRx* Order, unsigned char *add_data, int add_data_len)
 {
@@ -145,13 +154,14 @@ int StRx_push(StRx* Order, unsigned char *add_data, int add_data_len)
 
 
 
-/* 
- * @name StRx_pop
- * @Description 读取一个数据
- * @prame1 结构体索引
- * @prame2 目的数据
- * @return (0 is pop success)(1 is not)
+/**
+ * @bieaf 读取一个数据
  *
+ * @param 结构体索引
+ * @param 目的数据
+ * @return 返回本次操作的状态
+ * 	@retval 0 操作失败
+ * 	@retval 1 操作成功
  */
 static unsigned char StRx_pop(StRx* Order, unsigned char *des)
 {
@@ -167,13 +177,17 @@ static unsigned char StRx_pop(StRx* Order, unsigned char *des)
 
 
 #ifdef ADD_SUM_CHECK
-/* 
- * @name m_sum_check
- * @Description 和校验
- * @prame1 源数据
- * @prame2 数量
- * @prame1 @return (1 is pass),(0 is not pass)
+
+
+
+/**
+ * @bieaf 对数据进行和校验
  *
+ * @param tx_buf		源数据
+ * @param tx_buf_len 源数据大小
+ * @return 返回校验结果
+ * 	@retval 0 校验失败
+ * 	@retval 1 校验成功
  */
 static int m_sum_check(unsigned char *tx_buf, int tx_buf_len)
 {
@@ -190,13 +204,13 @@ static int m_sum_check(unsigned char *tx_buf, int tx_buf_len)
 
 
 
-/* 
- * @name m_calculation_sum_check
- * @Description 计算和校验
- * @prame1 源数据
- * @prame2 数量
- * @prame1 @return 和校验的值
+/**
+ * @bieaf 计算和校验
+ * @detail 
  *
+ * @param tx_buf 		源数据
+ * @param tx_buf_len	源数据大小
+ * @return 和校验的值
  */
  static unsigned char m_calculation_sum_check(unsigned char *tx_buf, int tx_buf_len)
 {
@@ -210,11 +224,12 @@ static int m_sum_check(unsigned char *tx_buf, int tx_buf_len)
 }
 #endif
 
-/* 
- * @name m_deal_receive
- * @Description 接收处理函数
- * @prame1 结构体索引
+
+
+/**
+ * @bieaf 接收处理函数
  *
+ * @param 结构体参数
  */
 void m_deal_receive(StRx* Order)
 {
@@ -266,12 +281,12 @@ void m_deal_receive(StRx* Order)
 
 
 
-/* 
- * @name m_add_padding_send_data
- * @Description 进行字符填充之后再发送出去
- * @prame1 源数据
- * @prame2 数量
+/**
+ * @bieaf 进行字符填充之后再发送出去
  *
+ * @param Order 		结构体参数
+ * @param tx_buf 		发送的数据指针
+ * @param tx_buf_len 发送的数据大小
  */
 void m_add_padding_send_data(StRx* Order, unsigned char *tx_buf, int tx_buf_len)
 {
@@ -329,9 +344,8 @@ void m_add_padding_send_data(StRx* Order, unsigned char *tx_buf, int tx_buf_len)
 
 
 
-/* 
- * @name text_example
- * @Description 测试例程
+/**
+ * @bieaf 测试例程
  *
  */
 void text_example(void)

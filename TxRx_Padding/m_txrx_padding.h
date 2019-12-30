@@ -54,33 +54,10 @@ extern StRx StRx_t;
 void StRx_init(void);
 #endif
 
-/* 
- * @name m_add_padding_send_data
- * @Description 进行字符填充之后再发送出去
- * @prame1 源数据
- * @prame2 数量
- *
- */
+
+
 void m_add_padding_send_data(StRx* Order, unsigned char *tx_buf, int tx_buf_len);
-
-
-
-/* 
- * @name StRx_push
- * @Description 添加数据
- * @prame1 结构体索引
- * @prame2 源数据
- * @prame3 数量
- * @return (1 -- push success) (0 -- add_data_len为0, 或者队列满了)
- */
 int  StRx_push(StRx* Order, unsigned char *add_data, int add_data_len);
-
-/* 
- * @name m_deal_receive
- * @Description 接收处理函数
- * @prame1 结构体索引
- *
- */
 void m_deal_receive(StRx* Order);
 
 #endif
