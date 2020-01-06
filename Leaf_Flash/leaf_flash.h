@@ -49,7 +49,7 @@ typedef struct
 
 
 /* 读取函数 */
-unsigned int Find_write_addr(L_node node, unsigned int *addr);
+int Read_LeafFlash(L_node node, unsigned char* des, unsigned int size);
 
 
 
