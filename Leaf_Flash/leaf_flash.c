@@ -72,7 +72,7 @@ int Read_LeafFlash(L_node node, unsigned char* des, unsigned int size)
 		/* 读取一个数 */
 		data = *(__IO uint32_t*)(addr);
 		
-		if(data == Tail)// 定位到头了
+		if(data == Tail)///<定位到头了
 		{
 			data = *(__IO uint32_t*)(addr - word_size * 4 - 4);
 			if(data == Head)
@@ -164,7 +164,7 @@ int Write_LeafFlash(L_node node, unsigned char *src, unsigned int size)
 #ifdef LEAF_FLASH_TEST
 
 /* 测试结构体 */
-void test_struct(void)//测试结构体
+void test_struct(void)///<测试结构体
 {
 	typedef struct
 	{
@@ -188,7 +188,7 @@ void test_struct(void)//测试结构体
 }
 
 /* 测试unsigned short 变量 */
-void test_uint16(void)//测试unsigned short
+void test_uint16(void)///<测试unsigned short
 {
 	unsigned short b1 = 0x7788;
 	unsigned short b2;
@@ -202,7 +202,7 @@ void test_uint16(void)//测试unsigned short
 }
 
 /* 测试int变量 */
-void test_int(void)//测试int
+void test_int(void)///<测试int
 {
 	int c1 = -235;
 	int c2;
@@ -215,7 +215,7 @@ void test_int(void)//测试int
 }
 
 /* 测试unsigned char数组 */
-void test_uint8(void)//测试unsigned char*
+void test_uint8(void)///<测试unsigned char*
 {
 	unsigned char d1[6] = {0x11,0x22,0x33,0x44,0x55,0x66};
 	unsigned char d2[6];
@@ -229,7 +229,7 @@ void test_uint8(void)//测试unsigned char*
 }
 
 /* 测试int数组 */
-void test_uint32(void)//测试unsigned int*
+void test_uint32(void)///<测试unsigned int*
 {
 	unsigned int e1[5] = {1,3,5,7,9};
 	unsigned int e2[5];
